@@ -25,11 +25,9 @@ export function stopTicker(){
 	clearInterval(ticker);
 }
 
-
-// export function clearTicker(sec){
-// 	clearInterval(function(){
-//         dispatcher.dispatch({
-// 			type: "Timer Ticked"
-// 		});
-//     },1000*sec)
-// }
+export function submitSettings(settings){
+	dispatcher.dispatch({
+		type: "Settings Submitted",
+		settings: settings
+	});
+}

@@ -1,4 +1,6 @@
 import BaseStore from './BaseStore';
+import SettingsStore from './SettingsStore';
+
 import _ from 'lodash';
 
 class LandscapeStore extends BaseStore {
@@ -6,10 +8,24 @@ class LandscapeStore extends BaseStore {
 	getInitialState(){
     	return {
 			blockLocations: 	[],
-			width: 		10,
-    		height: 	20
+			width: 		SettingsStore.getBoardSize().width,
+    		height: 	SettingsStore.getBoardSize().height
 		}
     }
+
+    storeDidMount(){
+    	this._updateSize = this._updateSize.bind(this);
+    	SettingsStore.addChangeListener(this._updateSize);
+    }
+
+    _updateSize(){
+    	this.setState({
+			width: 		SettingsStore.getBoardSize().width,
+    		height: 	SettingsStore.getBoardSize().height
+		});
+    }
+
+    // Need Store Unmount I think!
 
     _constructSides(){
     	var sidesArray = [];
@@ -78,7 +94,7 @@ class LandscapeStore extends BaseStore {
 	}
 
 	getStartpoint(){
-		return {X: Math.floor(this.state.width/2), Y:1}
+		return {X: Math.ceil(this.state.width/2), Y:1}
 	}
 
 	getBlockLocations(){

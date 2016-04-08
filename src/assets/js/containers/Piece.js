@@ -7,7 +7,7 @@ class Piece extends BlockStructure {
 
 	constructor(){
 		super();
-		this.bindStore = PieceStore;
+		this.bindLocationStore = PieceStore;
 	}
 
 	_getColor(){

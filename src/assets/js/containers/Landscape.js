@@ -7,7 +7,13 @@ class Landscape extends BlockStructure {
 
 	constructor(){
 		super();
-		this.bindStore = LandscapeStore;
+		this.bindLocationStore = LandscapeStore;
+
+		this.styles = {
+			// boxSizing:'border-box',
+			// border: '40px green',
+			// borderTop: 'none'
+		}
 	}
 
 	_getColor(){

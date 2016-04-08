@@ -1,5 +1,8 @@
 import React from 'react';
+import Radium from 'radium';
 import Block from '../views/Block';
+
+import SettingsStore from '../stores/SettingsStore';
 
 class BlockStructure extends React.Component {
   	constructor(props){
@@ -7,42 +10,51 @@ class BlockStructure extends React.Component {
 
 		this.state = {
 			locations: [],
-			color: 'gray'
+			color: 'gray',
+			size:'0px'
 		}
 
-		this.styles = {
+		this.defaultStyles = {
 			position:'absolute',
 			width:'100%',
 			height:'100%',
 		}
 
-		this._update = this._update.bind(this);
+		this._updateLocation = this._updateLocation.bind(this);
+		this._updateSize = this._updateSize.bind(this);
 	}
 	
 	componentDidMount(){
-		this.bindStore.addChangeListener(this._update);
-		this._update();
+		SettingsStore.addChangeListener(this._updateSize);
+		this.bindLocationStore.addChangeListener(this._updateLocation);
+		this._updateLocation();
 	}
-
 
 	componentWillUnmount() {
-		this.bindStore.removeChangeListener(this._update);
+		SettingsStore.removeChangeListener(this._updateSize);
+		this.bindLocationStore.removeChangeListener(this._updateLocation);
 	}
 
-	_update(){
+	_updateLocation(){
 		this.setState({
-			locations: this.bindStore.getBlockLocations(),
+			locations: this.bindLocationStore.getBlockLocations(),
 			color: this._getColor() || 'gray'
 		});
 	}
 
+	_updateSize(){
+		this.setState({
+			size: SettingsStore.getBlockSize()
+		});
+	}
+
   	render(){
-	    return  <div style={this.styles} >
+	    return  <div style={[this.defaultStyles, this.styles || {}]} >
 	    			{this.state.locations.map(function(b,i){
-	    				return <Block key={this.state.color+i} location={b} color={this.state.color} size={40} />
+	    				return <Block key={this.state.color+i} location={b} color={this.state.color} size={this.state.size} />
 	    			}.bind(this))}
 	            </div>;
   	}
 }
 
-export default BlockStructure;
+export default Radium(BlockStructure);
