@@ -1,24 +1,25 @@
 import BaseStore from './BaseStore';
 import LandscapeStore from './LandscapeStore';
-import {getPositions, getPieceCount} from '../Positions';
+import { getPositions, getPieceCount } from '../Positions';
 
 import dispatcher from '../dispatcher';
+import { stopTicker } from '../actions/driverActions';
 
 class PieceStore extends BaseStore {
 
 	getInitialState(){
-    	return {
-			type: 			Math.ceil(Math.random())*getPieceCount(),
-			orientation: 	1,
-			location: 		LandscapeStore.getStartpoint(),
-			blockLocations: [
-								//	{X:0, Y:0},
-								//	{X:0, Y:0},
-								//	{X:0, Y:0},
-								//	{X:0, Y:0},
-							]
-		}
+    	return this._emptyState();
     }
+
+	_emptyState(){
+		return {
+			type: 			null,
+			orientation: 	null,
+			location: 		{},
+			blockLocations: [],
+			live: 			false
+		}
+	}
 
 	register(action){
 		switch(action.type){
@@ -26,10 +27,20 @@ class PieceStore extends BaseStore {
 				this._newPiece();
 				break;
 			case "Timer Ticked":
-				this._movePiece('down');
+				this.state.live && this._movePiece('down');
+				break;
+			case "Piece Landed":
+				this._newPiece();
 				break;
 			case "User Input":
-				this._movePiece(action.movement);
+				this.state.live && this._movePiece(action.movement);
+				break;
+			case "Game Over":
+				this.setState({
+					live: false
+				});
+				// stopTicker();
+				// this.setState( this._emptyState() );
 				break;
 			default:
 				break;
@@ -45,8 +56,15 @@ class PieceStore extends BaseStore {
 			location: 		LandscapeStore.getStartpoint(),
 			blockLocations: this._modifyPositions(
 								getPositions(type, 1), LandscapeStore.getStartpoint()
-							)
+							),
+			live: 			true
 		});
+
+		if(!LandscapeStore.isSpaceEmpty(this.state.blockLocations)){
+			dispatcher.dispatch({
+				type: "Game Over"
+			});
+		}
 	}
 
 	_modifyPositions(position, modifier){
@@ -59,7 +77,7 @@ class PieceStore extends BaseStore {
 		return locations;
 	}
 
-	_calculateNextLocations(transformation){
+	_calculateLocation(transformation){
 		if (transformation == 'rotate'){
 			return 	this._modifyPositions(
 						getPositions(this.state.type, this.state.orientation+1), 
@@ -76,17 +94,17 @@ class PieceStore extends BaseStore {
 	_movePiece(direction){
 		switch(direction){
 			case 'rotate':
-				if (LandscapeStore.isSpaceEmpty(this._calculateNextLocations('rotate'))){
+				if (LandscapeStore.isSpaceEmpty(this._calculateLocation('rotate'))){
 					this.setState({
 						orientation: 	this.state.orientation+1,
-						blockLocations: this._calculateNextLocations('rotate')
+						blockLocations: this._calculateLocation('rotate')
 					})
 				}
 				break;
 			case 'down':
-				if (LandscapeStore.isSpaceEmpty(this._calculateNextLocations({X:0, Y:1}))){
+				if (LandscapeStore.isSpaceEmpty(this._calculateLocation({X:0, Y:1}))){
 					this.setState({
-						blockLocations: this._calculateNextLocations({X:0, Y:1}),
+						blockLocations: this._calculateLocation({X:0, Y:1}),
 						location: this._modifyPositions([this.state.location], {X:0, Y:1})[0]
 					})
 				} else {
@@ -94,21 +112,20 @@ class PieceStore extends BaseStore {
 						type: "Piece Landed",
 						locations: this.state.blockLocations
 					});
-					this._newPiece();
 				}
 				break;
 			case 'left':
-				if (LandscapeStore.isSpaceEmpty(this._calculateNextLocations({X:-1, Y:0}))){
+				if (LandscapeStore.isSpaceEmpty(this._calculateLocation({X:-1, Y:0}))){
 					this.setState({
-						blockLocations: this._calculateNextLocations({X:-1, Y:0}),
+						blockLocations: this._calculateLocation({X:-1, Y:0}),
 						location: this._modifyPositions([this.state.location], {X:-1, Y:0})[0]
 					})
 				}
 				break;
 			case 'right':
-				if (LandscapeStore.isSpaceEmpty(this._calculateNextLocations({X:1, Y:0}))){
+				if (LandscapeStore.isSpaceEmpty(this._calculateLocation({X:1, Y:0}))){
 					this.setState({
-						blockLocations: this._calculateNextLocations({X:1, Y:0}),
+						blockLocations: this._calculateLocation({X:1, Y:0}),
 						location: this._modifyPositions([this.state.location], {X:1, Y:0})[0]
 					})
 				}
@@ -121,6 +138,10 @@ class PieceStore extends BaseStore {
 
 	getBlockLocations(){
 		return this.state.blockLocations;
+	}
+
+	getPieceType(){
+		return this.state.type;
 	}
 
 }

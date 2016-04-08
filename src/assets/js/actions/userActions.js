@@ -1,16 +1,16 @@
 import dispatcher from '../dispatcher';
 
-export function newGame(){
-	dispatcher.dispatch({
-		type: "New Game"
-	});
-}
-
 export function keyPressed(keyCode){
-	dispatcher.dispatch({
-		type: "User Input",
-		movement: _decodeKeyPress(keyCode),
-	});
+	if (keyCode === 78){
+        dispatcher.dispatch({
+			type: "New Game"
+		});
+    } else {
+        dispatcher.dispatch({
+			type: "User Input",
+			movement: _decodeKeyPress(keyCode),
+		});
+    }
 }
 
 function _decodeKeyPress(keyCode){
@@ -27,10 +27,4 @@ function _decodeKeyPress(keyCode){
 			console.log('Not a functional key');
 			return "other";
 	}
-}
-
-export function timerTick(){
-	dispatcher.dispatch({
-		type: "Timer Ticked"
-	});
 }

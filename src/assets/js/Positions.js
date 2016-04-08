@@ -17,7 +17,7 @@ let pieces = {
 			startPosition:2,
 		},
 	},
-	2: { // L block
+	2: { // L1 block
 		1:{
 			type:3,
 			startPosition:3,
@@ -35,7 +35,25 @@ let pieces = {
 			startPosition:2,
 		},
 	},
-	3: { // T block
+	3: { // L2 block
+		1:{
+			type:3,
+			startPosition:2,
+		},
+		2:{
+			type:1,
+			startPosition:4
+		},
+		3:{
+			type:0,
+			startPosition:1
+		},
+		4:{
+			type:1,
+			startPosition:2,
+		},
+	},
+	4: { // T block
 		1:{
 			type:1,
 			startPosition:3,
@@ -53,7 +71,7 @@ let pieces = {
 			startPosition:2,
 		},
 	},
-	4: { // Z block
+	5: { // Z1 block
 		1:{
 			type:3,
 			startPosition:3,
@@ -71,7 +89,25 @@ let pieces = {
 			startPosition:2,
 		},
 	},
-	5: { // O block
+	6: { // Z2 block
+		1:{
+			type:1,
+			startPosition:4,
+		},
+		2:{
+			type:1,
+			startPosition:3
+		},
+		3:{
+			type:0,
+			startPosition:1
+		},
+		4:{
+			type:3,
+			startPosition:2,
+		},
+	},
+	7: { // O block
 		1:{
 			type:0,
 			startPosition:1

@@ -6,22 +6,23 @@ class Block extends React.Component {
 		super(props);
 
 		this.styles = {
-			position:'absolute',
-			width:'40px',
-			height:'40px',
-			boxSizing:'border-box',
-			border:'2px black solid',
-			backgroundColor: 'blue'
+			position: 	'absolute',
+			width: 		this.props.size+'px',
+			height: 	this.props.size+'px',
+			boxSizing: 	'border-box',
+			border: 	'2px black solid',
+			backgroundColor: this.props.color,
 		}
 	}
 
-  	render(){
-  		let newStyles = {
-  			left: 	this.props.location.X*40 + 'px',
-  			top: 	this.props.location.Y*40 + 'px'
-  		}
+	_getLocation(){
+		return {
+			left: 	this.props.location.X*this.props.size+'px',
+  			top: 	this.props.location.Y*this.props.size+'px'
+		}
+	}
 
-	    return  <div style={[this.styles, newStyles]}> </div>;
+  	render(){return  <div style={[this.styles, this._getLocation()]}> </div>;
   	}
 }
 

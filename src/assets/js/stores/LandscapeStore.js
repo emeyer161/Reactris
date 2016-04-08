@@ -47,29 +47,44 @@ class LandscapeStore extends BaseStore {
 
 	_checkRows(){
 		var newBlockLocations = this.state.blockLocations;
-		for (var i=this.state.height-1; i>=0; i--){
-			var filled = _.filter(this.state.blockLocations, function(b){
-							return b.Y == i;
-						});
-			if(filled.length >= this.state.width){
-				newBlockLocations = _.reject(newBlockLocations, function(b){
-										return ((b.Y == i) && (b.X != 1) && (b.X != this.state.width));
-									}.bind(this));
-				_.forEach(newBlockLocations, function(b){
-					if ((b.Y<i) && (b.X != 1) && (b.X != this.state.width)){
-						b.Y += 1;
-					}
-				}.bind(this));
-				// i++;
+		for (var r=this.state.height-1; r>=0; r--){
+			if(this._rowFull(newBlockLocations, r)){						// If row at current index is full
+				newBlockLocations = this._removeRow(newBlockLocations, r);	// Remove that row from array
+				newBlockLocations = this._dropRows(newBlockLocations, r);	// Drop all rows above
+				r++;
 			}
 		}
 		return newBlockLocations;
+	}
+
+	_rowFull(array, row){
+		return	_.filter(array, function(b){
+					return b.Y == row;
+				}).length >= this.state.width;
+	}
+
+	_removeRow(array, row){
+		return 	_.reject(array, function(b){
+					return ((b.Y == row) && (b.X != 1) && (b.X != this.state.width));
+				}.bind(this));
+	}
+
+	_dropRows(array, row){
+		return _.forEach(array, function(b){
+					if ((b.Y<row) && (b.X != 1) && (b.X != this.state.width)){
+						b.Y += 1;
+					}
+				}.bind(this));
 	}
 
 	getStartpoint(){
 		return {X: Math.floor(this.state.width/2), Y:1}
 	}
 
+	getBlockLocations(){
+		return this.state.blockLocations;
+	}
+	
 	isSpaceEmpty(locations){
 		for (var i=0; i<locations.length; i++){
 			if (_.findIndex(this.state.blockLocations, locations[i]) >=0){
@@ -77,10 +92,6 @@ class LandscapeStore extends BaseStore {
 			}
 		}
 		return true
-	}
-
-	getBlockLocations(){
-		return this.state.blockLocations;
 	}
 
 }

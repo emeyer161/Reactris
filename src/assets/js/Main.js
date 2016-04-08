@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-// import Radium from 'radium';
 
-import { newGame, keyPressed, timerTick } from './actions/actions';
+import { newGame, keyPressed } from './actions/userActions';
+import { setTicker, quickerTicker, slowTicker } from './actions/driverActions';
 
 import Piece from './containers/Piece';
 import Landscape from './containers/Landscape';
@@ -10,9 +10,6 @@ import Landscape from './containers/Landscape';
 export default class Application extends React.Component {
     constructor(){
         super();
-        this.state = {
-
-        };
 
         this.styles = {
             position:'absolute',
@@ -22,18 +19,18 @@ export default class Application extends React.Component {
     }
 
     _handleKeyPress(event){
-        if (event.keyCode === 78){
-            newGame();
-        } else {
-            keyPressed(event.keyCode);
+        event.preventDefault();
+        if(event.keyCode == 70){
+            quickerTicker();
+        } else if (event.keyCode == 83){
+            slowTicker();
         }
+        keyPressed(event.keyCode);
     }
 
     componentDidMount() {
         window.addEventListener("keydown", this._handleKeyPress.bind(this), false);
-        setInterval(function(){
-            timerTick();
-        },1000)
+        setTicker(1);
     }
 
     componentWillUnmount() {
