@@ -10,15 +10,10 @@ class Landscape extends BlockStructure {
 		this.bindLocationStore = LandscapeStore;
 
 		this.styles = {
-			// boxSizing:'border-box',
-			// border: '40px green',
-			// borderTop: 'none'
+			backgroundColor:'AliceBlue'
 		}
 	}
 
-	// _getColor(){
-	// 	return "gray";
-	// }
 }
 
 export default Landscape;

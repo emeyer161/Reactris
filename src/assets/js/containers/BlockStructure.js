@@ -47,6 +47,7 @@ class BlockStructure extends React.Component {
 	}
 
   	render(){
+  		console.log(this.styles);
 	    return  <div style={[this.defaultStyles, this.styles || {}]} >
 	    			{this.state.blocks.map(function(b,i){
 	    				return <Block key={i} qualities={b} size={this.state.size} />

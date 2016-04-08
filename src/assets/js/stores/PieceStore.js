@@ -59,8 +59,6 @@ class PieceStore extends BaseStore {
 			live: 			true
 		});
 
-		console.log(this.state);
-
 		if(!LandscapeStore.isSpaceEmpty(this.state.blocks)){
 			dispatcher.dispatch({
 				type: "Game Over"

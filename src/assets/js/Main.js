@@ -26,13 +26,6 @@ export default class Application extends React.Component {
                 width:'70%',
                 height:'100%',
             },
-            gameborder:{
-                position:'absolute',
-                width:'100%',
-                height:'100%',
-                boxSizing:'border-box',
-                border:'0px solid green'
-            },
             scoreboard:{
                 position:'absolute',
                 right:'0px',
@@ -57,30 +50,27 @@ export default class Application extends React.Component {
     componentDidMount() {
         window.addEventListener("keydown", this._handleKeyPress.bind(this), false);
         setTicker(1);
-        SettingsStore.addChangeListener(this._update);
+        // SettingsStore.addChangeListener(this._update);
 
         submitSettings({
             boardWidth:  document.getElementById('gameBoard').clientWidth,
             boardHeight: document.getElementById('gameBoard').clientHeight,
-            blocksWide:11
+            blocksWide:9
         });
     }
 
     componentWillUnmount() {
         window.removeEventListener("keydown", this._handleKeyPress.bind(this), false);
-        SettingsStore.removeChangeListener(this._update);
+        // SettingsStore.removeChangeListener(this._update);
     }
 
     _update(){
-        this.styles.gameborder.border = SettingsStore.getBlockSize() + 'px solid green';
-        this.render();
+
     }
 
   	render(){
-        console.log(this.styles.gameborder.border);
 	    return  <div id='Reactris' style={this.styles.container} >
                     <div id='gameBoard' style={this.styles.gameboard} >
-                        <div id='gameBorder' style={this.styles.gameborder} ></div>
                         <Landscape />
                         <Piece />
                     </div>
