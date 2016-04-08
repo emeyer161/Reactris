@@ -1,6 +1,6 @@
 import BaseStore from './BaseStore';
 import LandscapeStore from './LandscapeStore';
-import { getPositions, getPieceCount } from '../Positions';
+import { getBlocks, modifyBlock, getPieceCount } from '../Pieces';
 
 import dispatcher from '../dispatcher';
 import { stopTicker } from '../actions/driverActions';
@@ -16,7 +16,7 @@ class PieceStore extends BaseStore {
 			type: 			null,
 			orientation: 	null,
 			location: 		{},
-			blockLocations: [],
+			blocks: 		[],
 			live: 			false
 		}
 	}
@@ -48,44 +48,49 @@ class PieceStore extends BaseStore {
 	}
 
 	_newPiece(){
-		var type = Math.ceil(Math.random()*getPieceCount());
+		var type 	= Math.ceil(Math.random()*getPieceCount());
+		var start 	= LandscapeStore.getStartpoint()
 
 		this.setState({
 			type: 			type,
 			orientation: 	1,
-			location: 		LandscapeStore.getStartpoint(),
-			blockLocations: this._modifyPositions(
-								getPositions(type, 1), LandscapeStore.getStartpoint()
-							),
+			location: 		start,
+			blocks: this._modifyBlocks( getBlocks(type, 1), start ),
 			live: 			true
 		});
 
-		if(!LandscapeStore.isSpaceEmpty(this.state.blockLocations)){
+		console.log(this.state);
+
+		if(!LandscapeStore.isSpaceEmpty(this.state.blocks)){
 			dispatcher.dispatch({
 				type: "Game Over"
 			});
 		}
 	}
 
-	_modifyPositions(position, modifier){
-		var locations =[];
-		for (var i=0; i<position.length; i++){
-			locations[i] = {X: null, Y: null};
-			locations[i].X = position[i].X + modifier.X;
-			locations[i].Y = position[i].Y + modifier.Y;
-		}
-		return locations;
+	_modifyBlocks(blocks, modifier){
+		var modBlocks =[];
+		blocks.map(function(b){
+			modBlocks.push(modifyBlock(b, modifier));
+		})
+		// for (var i=0; i<blocks.length; i++){
+		// 	modBlocks[i]  		= {X: null, Y: null, color:''};
+		// 	modBlocks[i].X  	= blocks[i].X + modifier.X;
+		// 	modBlocks[i].Y  	= blocks[i].Y + modifier.Y;
+		// 	modBlocks[i].color  = modifier.color || blocks[i].color;
+		// }
+		return modBlocks;
 	}
 
 	_calculateLocation(transformation){
 		if (transformation == 'rotate'){
-			return 	this._modifyPositions(
-						getPositions(this.state.type, this.state.orientation+1), 
+			return 	this._modifyBlocks(
+						getBlocks(this.state.type, this.state.orientation+1), 
 						this.state.location
 					);
 		} else {
-			return 	this._modifyPositions(
-						this.state.blockLocations,
+			return 	this._modifyBlocks(
+						this.state.blocks,
 						transformation
 					);
 		}
@@ -97,36 +102,36 @@ class PieceStore extends BaseStore {
 				if (LandscapeStore.isSpaceEmpty(this._calculateLocation('rotate'))){
 					this.setState({
 						orientation: 	this.state.orientation+1,
-						blockLocations: this._calculateLocation('rotate')
+						blocks: this._calculateLocation('rotate')
 					})
 				}
 				break;
 			case 'down':
 				if (LandscapeStore.isSpaceEmpty(this._calculateLocation({X:0, Y:1}))){
 					this.setState({
-						blockLocations: this._calculateLocation({X:0, Y:1}),
-						location: this._modifyPositions([this.state.location], {X:0, Y:1})[0]
+						blocks: this._calculateLocation({X:0, Y:1}),
+						location: this._modifyBlocks([this.state.location], {X:0, Y:1})[0]
 					})
 				} else {
 					dispatcher.dispatch({
 						type: "Piece Landed",
-						locations: this.state.blockLocations
+						blocks: this.state.blocks
 					});
 				}
 				break;
 			case 'left':
 				if (LandscapeStore.isSpaceEmpty(this._calculateLocation({X:-1, Y:0}))){
 					this.setState({
-						blockLocations: this._calculateLocation({X:-1, Y:0}),
-						location: this._modifyPositions([this.state.location], {X:-1, Y:0})[0]
+						blocks: this._calculateLocation({X:-1, Y:0}),
+						location: this._modifyBlocks([this.state.location], {X:-1, Y:0})[0]
 					})
 				}
 				break;
 			case 'right':
 				if (LandscapeStore.isSpaceEmpty(this._calculateLocation({X:1, Y:0}))){
 					this.setState({
-						blockLocations: this._calculateLocation({X:1, Y:0}),
-						location: this._modifyPositions([this.state.location], {X:1, Y:0})[0]
+						blocks: this._calculateLocation({X:1, Y:0}),
+						location: this._modifyBlocks([this.state.location], {X:1, Y:0})[0]
 					})
 				}
 				break;
@@ -136,8 +141,12 @@ class PieceStore extends BaseStore {
 		}
 	}
 
-	getBlockLocations(){
-		return this.state.blockLocations;
+	getBlocks(){
+		return this.state.blocks;
+	}
+
+	getPieceColor(){
+		return this.state.color;
 	}
 
 	getPieceType(){

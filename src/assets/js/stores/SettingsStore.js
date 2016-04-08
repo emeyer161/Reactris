@@ -5,22 +5,20 @@ class SettingsStore extends BaseStore {
 
 	getInitialState(){
     	return {
-			width: 		'0px',
-            height:		'0px',
-            blocksWide: 0,
-            blocksTall: 0,
-            blockSize: 	0,
+			boardWidth: 	'0px',
+            boardHeight:	'0px',
+            blocksWide: 	0,
+            blocksTall: 	0,
+            blockSize: 		0,
 		}
     }
 
     register(action){
 		switch(action.type){
 			case "Settings Submitted":
-				action.settings.blocksWide +=2;
-				var blockWidth 	= action.settings.width/(action.settings.blocksWide);
-
-				action.settings.blockSize 	= blockWidth;
-				action.settings.blocksTall 	= Math.floor(action.settings.height/blockWidth);
+				action.settings.blocksWide 	+=2;
+				action.settings.blockSize 	= action.settings.boardWidth / action.settings.blocksWide;
+				action.settings.blocksTall 	= Math.floor( action.settings.boardHeight / action.settings.blockSize );
 
 				this.setState( action.settings );
 				break;
@@ -39,17 +37,6 @@ class SettingsStore extends BaseStore {
 			height: this.state.blocksTall
 		}
 	}
-
-	// separateUnits(str){
- //        str = str.replace(/\s/g, '');
- //        var unitIndex = _.findIndex(str.split(''), function(letter){
- //            return isNaN(parseInt(letter));
- //        });
- //        return {
- //            value:  parseInt(_.slice(str, 0, unitIndex).join('')),
- //            unit:   _.slice(str, unitIndex).join(''),
- //        }
- //    }
 
 }
 

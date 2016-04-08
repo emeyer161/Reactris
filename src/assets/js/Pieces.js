@@ -16,6 +16,7 @@ let pieces = {
 			type:2,
 			startPosition:2,
 		},
+		color:'Aqua'
 	},
 	2: { // L1 block
 		1:{
@@ -34,6 +35,7 @@ let pieces = {
 			type:1,
 			startPosition:2,
 		},
+		color:'HotPink'
 	},
 	3: { // L2 block
 		1:{
@@ -52,6 +54,7 @@ let pieces = {
 			type:1,
 			startPosition:2,
 		},
+		color:'BlueViolet'
 	},
 	4: { // T block
 		1:{
@@ -70,6 +73,7 @@ let pieces = {
 			type:1,
 			startPosition:2,
 		},
+		color:'Chartreuse'
 	},
 	5: { // Z1 block
 		1:{
@@ -88,6 +92,7 @@ let pieces = {
 			type:1,
 			startPosition:2,
 		},
+		color:'Gold'
 	},
 	6: { // Z2 block
 		1:{
@@ -106,6 +111,7 @@ let pieces = {
 			type:3,
 			startPosition:2,
 		},
+		color:'IndianRed'
 	},
 	7: { // O block
 		1:{
@@ -124,6 +130,7 @@ let pieces = {
 			type:1,
 			startPosition:3,
 		},
+		color:'Orange'
 	},
 }
 
@@ -161,19 +168,35 @@ function _removeExcess(num){
     return num;
 }
 
-export function getPositions(piece, orientation){
-	var	piecePositions 	= [];
+export function modifyBlock(block, modifier){
+		var modBlock = {
+			X: 		block.X + modifier.X, 
+			Y: 		block.Y + modifier.Y,
+		};
+		(block.color || modifier.color) && (modBlock.color = modifier.color || block.color);
+
+		return modBlock;
+	}
+
+export function getBlocks(piece, orientation){
+	var	blocks 	= [];
 
 	for (var b=1; b<5; b++){	// for each block
 		var block 		= pieces[piece][b];
-		var pos 		= block.startPosition + orientation;
-		var position 	= _removeExcess(pos);
+		var position 	= _removeExcess(block.startPosition + orientation);
 
-		piecePositions.push( 
-			rotationPositions[block.type][position]
+		var pBlock 		= rotationPositions[block.type][position];
+		var pcBlock 	= modifyBlock(pBlock, {X:0, Y:0, color:pieces[piece].color});
+
+		blocks.push( 
+			pcBlock
 		);
 	}
-	return piecePositions;
+	return blocks;
+}
+
+export function getColor(){
+	return 'orange';
 }
 
 export function getPieceCount(){

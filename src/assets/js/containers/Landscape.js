@@ -16,9 +16,9 @@ class Landscape extends BlockStructure {
 		}
 	}
 
-	_getColor(){
-		return "gray";
-	}
+	// _getColor(){
+	// 	return "gray";
+	// }
 }
 
 export default Landscape;

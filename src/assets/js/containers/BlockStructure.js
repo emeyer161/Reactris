@@ -9,8 +9,7 @@ class BlockStructure extends React.Component {
 		super(props);
 
 		this.state = {
-			locations: [],
-			color: 'gray',
+			blocks: [],
 			size:'0px'
 		}
 
@@ -20,25 +19,24 @@ class BlockStructure extends React.Component {
 			height:'100%',
 		}
 
-		this._updateLocation = this._updateLocation.bind(this);
+		this._updateBlocks = this._updateBlocks.bind(this);
 		this._updateSize = this._updateSize.bind(this);
 	}
 	
 	componentDidMount(){
 		SettingsStore.addChangeListener(this._updateSize);
-		this.bindLocationStore.addChangeListener(this._updateLocation);
-		this._updateLocation();
+		this.bindLocationStore.addChangeListener(this._updateBlocks);
+		this._updateBlocks();
 	}
 
 	componentWillUnmount() {
 		SettingsStore.removeChangeListener(this._updateSize);
-		this.bindLocationStore.removeChangeListener(this._updateLocation);
+		this.bindLocationStore.removeChangeListener(this._updateBlocks);
 	}
 
-	_updateLocation(){
+	_updateBlocks(){
 		this.setState({
-			locations: this.bindLocationStore.getBlockLocations(),
-			color: this._getColor() || 'gray'
+			blocks: this.bindLocationStore.getBlocks(),
 		});
 	}
 
@@ -50,8 +48,8 @@ class BlockStructure extends React.Component {
 
   	render(){
 	    return  <div style={[this.defaultStyles, this.styles || {}]} >
-	    			{this.state.locations.map(function(b,i){
-	    				return <Block key={this.state.color+i} location={b} color={this.state.color} size={this.state.size} />
+	    			{this.state.blocks.map(function(b,i){
+	    				return <Block key={i} qualities={b} size={this.state.size} />
 	    			}.bind(this))}
 	            </div>;
   	}

@@ -60,9 +60,9 @@ export default class Application extends React.Component {
         SettingsStore.addChangeListener(this._update);
 
         submitSettings({
-            width:  document.getElementById('gameBoard').clientWidth,
-            height: document.getElementById('gameBoard').clientHeight,
-            blocksWide:9
+            boardWidth:  document.getElementById('gameBoard').clientWidth,
+            boardHeight: document.getElementById('gameBoard').clientHeight,
+            blocksWide:11
         });
     }
 

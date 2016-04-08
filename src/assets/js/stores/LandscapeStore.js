@@ -7,7 +7,7 @@ class LandscapeStore extends BaseStore {
 
 	getInitialState(){
     	return {
-			blockLocations: 	[],
+			blocks: 	[],
 			width: 		SettingsStore.getBoardSize().width,
     		height: 	SettingsStore.getBoardSize().height
 		}
@@ -30,14 +30,14 @@ class LandscapeStore extends BaseStore {
     _constructSides(){
     	var sidesArray = [];
     	for (var i=2; i<this.state.width; i++){
-    		sidesArray.push({X:i, Y:this.state.height});
+    		sidesArray.push({X:i, Y:this.state.height, color:'gray'});
     	}
     	for (var i=1; i<=this.state.height; i++){
-    		sidesArray.push({X:1, Y:i});
-    		sidesArray.push({X:this.state.width, Y:i});
+    		sidesArray.push({X:1, Y:i, color:'gray'});
+    		sidesArray.push({X:this.state.width, Y:i, color:'gray'});
     	}
     	this.setState({
-    		blockLocations: sidesArray
+    		blocks: sidesArray
     	});
     }
 
@@ -47,13 +47,13 @@ class LandscapeStore extends BaseStore {
 				this._constructSides();
 				break;
 			case "Piece Landed":
-				var newLocations = this.state.blockLocations;
-				action.locations.map(function(l){
+				var newLocations = this.state.blocks;
+				action.blocks.map(function(l){
 					newLocations.push(l);
 				});
 
 				this.setState({
-					blockLocations: this._checkRows(newLocations)
+					blocks: this._checkRows(newLocations)
 				});
 				break;
 			default:
@@ -62,15 +62,15 @@ class LandscapeStore extends BaseStore {
 	}
 
 	_checkRows(){
-		var newBlockLocations = this.state.blockLocations;
+		var newblocks = this.state.blocks;
 		for (var r=this.state.height-1; r>=0; r--){
-			if(this._rowFull(newBlockLocations, r)){						// If row at current index is full
-				newBlockLocations = this._removeRow(newBlockLocations, r);	// Remove that row from array
-				newBlockLocations = this._dropRows(newBlockLocations, r);	// Drop all rows above
+			if(this._rowFull(newblocks, r)){						// If row at current index is full
+				newblocks = this._removeRow(newblocks, r);	// Remove that row from array
+				newblocks = this._dropRows(newblocks, r);	// Drop all rows above
 				r++;
 			}
 		}
-		return newBlockLocations;
+		return newblocks;
 	}
 
 	_rowFull(array, row){
@@ -97,13 +97,15 @@ class LandscapeStore extends BaseStore {
 		return {X: Math.ceil(this.state.width/2), Y:1}
 	}
 
-	getBlockLocations(){
-		return this.state.blockLocations;
+	getBlocks(){
+		return this.state.blocks;
 	}
 	
-	isSpaceEmpty(locations){
-		for (var i=0; i<locations.length; i++){
-			if (_.findIndex(this.state.blockLocations, locations[i]) >=0){
+	isSpaceEmpty(piece){
+		for (var i=0; i<piece.length; i++){
+			if (_.findIndex(this.state.blocks, function(b){
+				return (piece[i].X == b.X) && (piece[i].Y == b.Y)
+			}) >=0 ){
 				return false;
 			}
 		}
