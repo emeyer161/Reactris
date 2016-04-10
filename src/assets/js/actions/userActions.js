@@ -15,6 +15,8 @@ export function keyPressed(keyCode){
 
 function _decodeKeyPress(keyCode){
 	switch(keyCode){
+		case 13:
+			return "lock";
 		case 37:
 			return "left";
 		case 38:

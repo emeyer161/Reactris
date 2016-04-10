@@ -1,9 +1,12 @@
 import BaseStore from './BaseStore';
 import LandscapeStore from './LandscapeStore';
-import { getBlocks, modifyBlock, getPieceCount } from '../Pieces';
-
+import GhostStore from './GhostStore';
 import dispatcher from '../dispatcher';
+
 import { stopTicker } from '../actions/driverActions';
+
+import { modifyBlock, modifyBlocks, lockBlocks } from '../repository';
+import { getBlocks, getPieceCount } from '../Pieces';
 
 class PieceStore extends BaseStore {
 
@@ -55,7 +58,7 @@ class PieceStore extends BaseStore {
 			type: 			type,
 			orientation: 	1,
 			location: 		start,
-			blocks: this._modifyBlocks( getBlocks(type, 1), start ),
+			blocks: modifyBlocks( getBlocks(type, 1), start ),
 			live: 			true
 		});
 
@@ -63,15 +66,11 @@ class PieceStore extends BaseStore {
 			dispatcher.dispatch({
 				type: "Game Over"
 			});
+		} else {
+			dispatcher.dispatch({
+				type: "New Piece"
+			});
 		}
-	}
-
-	_modifyBlocks(blocks, modifier){
-		var modBlocks =[];
-		blocks.map(function(b){
-			modBlocks.push(modifyBlock(b, modifier));
-		})
-		return modBlocks;
 	}
 
 	_movePiece(direction){
@@ -81,12 +80,21 @@ class PieceStore extends BaseStore {
 
 		switch(direction){
 			case 'rotate':
-				modBlocks = this._modifyBlocks( getBlocks(this.state.type, this.state.orientation+1),  this.state.location );
+				modBlocks = modifyBlocks( getBlocks(this.state.type, this.state.orientation+1),  this.state.location );
 				modOrientation = this.state.orientation+1;
 				break;
+			case 'lock':
+				this.setState({
+					blocks: lockBlocks(this.state.blocks)
+				});
+				dispatcher.dispatch({
+					type: "Piece Landed",
+					blocks: this.state.blocks
+				});
+				return;
 			case 'down':
-				modBlocks = this._modifyBlocks( this.state.blocks, {X:0, Y:1} );
-				modLocation = this._modifyBlocks([this.state.location], {X:0, Y:1})[0];
+				modBlocks = modifyBlocks( this.state.blocks, {Y:1} );
+				modLocation = modifyBlocks([this.state.location], {Y:1})[0];
 
 				if(!LandscapeStore.isSpaceEmpty(modBlocks)){
 					dispatcher.dispatch({
@@ -97,25 +105,27 @@ class PieceStore extends BaseStore {
 				}
 				break;
 			case 'left':
-				modBlocks = this._modifyBlocks( this.state.blocks, {X:-1, Y:0} );
-				modLocation = this._modifyBlocks([this.state.location], {X:-1, Y:0})[0];
+				modBlocks = modifyBlocks( this.state.blocks, {X:-1} );
+				modLocation = modifyBlocks([this.state.location], {X:-1})[0];
 				break;
 			case 'right':
-				modBlocks = this._modifyBlocks( this.state.blocks, {X:1, Y:0} );
-				modLocation = this._modifyBlocks([this.state.location], {X:1, Y:0})[0];
+				modBlocks = modifyBlocks( this.state.blocks, {X:1} );
+				modLocation = modifyBlocks([this.state.location], {X:1})[0];
 				break;
 			default:
 				console.log('Not a movement');
 				return;
 		}
 
-		console.log('made it out');
 		if(LandscapeStore.isSpaceEmpty(modBlocks)){
 			this.setState({
 				blocks: 		modBlocks,
 				location: 		modLocation,
 				orientation: 	modOrientation
-			})
+			});
+			dispatcher.dispatch({
+				type: "Piece Moved"
+			});
 		}
 	}
 

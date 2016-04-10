@@ -1,3 +1,5 @@
+import { modifyBlock } from './repository';
+
 let pieces = {
 	1: { // I block
 		1:{
@@ -168,16 +170,6 @@ function _removeExcess(num){
     return num;
 }
 
-export function modifyBlock(block, modifier){
-		var modBlock = {
-			X: 		block.X + modifier.X, 
-			Y: 		block.Y + modifier.Y,
-		};
-		(block.color || modifier.color) && (modBlock.color = modifier.color || block.color);
-
-		return modBlock;
-	}
-
 export function getBlocks(piece, orientation){
 	var	blocks 	= [];
 
@@ -186,7 +178,7 @@ export function getBlocks(piece, orientation){
 		var position 	= _removeExcess(block.startPosition + orientation);
 
 		var pBlock 		= rotationPositions[block.type][position];
-		var pcBlock 	= modifyBlock(pBlock, {X:0, Y:0, color:pieces[piece].color});
+		var pcBlock 	= modifyBlock(pBlock, {color:pieces[piece].color});
 
 		blocks.push( 
 			pcBlock

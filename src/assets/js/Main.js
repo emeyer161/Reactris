@@ -7,6 +7,7 @@ import { newGame, keyPressed } from './actions/userActions';
 import { submitSettings, setTicker, quickerTicker, slowTicker } from './actions/driverActions';
 
 import Piece from './containers/Piece';
+import Ghost from './containers/Ghost';
 import Landscape from './containers/Landscape';
 
 import SettingsStore from './stores/SettingsStore';
@@ -73,6 +74,7 @@ export default class Application extends React.Component {
                     <div id='gameBoard' style={this.styles.gameboard} >
                         <Landscape />
                         <Piece />
+                        <Ghost />
                     </div>
                     <div id='scoreBoard' style={this.styles.scoreboard} >
                     </div>
