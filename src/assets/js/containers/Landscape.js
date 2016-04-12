@@ -8,10 +8,6 @@ class Landscape extends BlockStructure {
 	constructor(){
 		super();
 		this.bindLocationStore = LandscapeStore;
-
-		this.styles = {
-			backgroundColor:'AliceBlue'
-		}
 	}
 
 }

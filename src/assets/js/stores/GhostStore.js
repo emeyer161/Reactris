@@ -13,14 +13,13 @@ class GhostStore extends BaseStore {
 
     _emptyState(){
     	return {
-    		blocks: [],
-    		color: 	''
+    		blocks: []
     	};
     }
 
 	register(action){
 		switch(action.type){
-			case "New Piece":
+			case "Piece Played":
 			case "Piece Moved":
 				this._update();
 				break;
@@ -34,8 +33,7 @@ class GhostStore extends BaseStore {
 
 	_update(){
 		this.setState({
-			blocks: lockBlocks( PieceStore.getBlocks() ),
-			color: PieceStore.getPieceColor()
+			blocks: lockBlocks( PieceStore.getBlocks() )
 		});
 	}
 

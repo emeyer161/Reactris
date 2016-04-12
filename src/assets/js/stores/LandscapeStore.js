@@ -1,6 +1,8 @@
 import BaseStore from './BaseStore';
 import SettingsStore from './SettingsStore';
 
+import dispatcher from '../dispatcher';
+
 import _ from 'lodash';
 
 class LandscapeStore extends BaseStore {
@@ -8,8 +10,10 @@ class LandscapeStore extends BaseStore {
 	getInitialState(){
     	return {
 			blocks: 	[],
-			width: 		SettingsStore.getBoardSize().width,
-    		height: 	SettingsStore.getBoardSize().height
+			width: 		SettingsStore.getGameBoardSize().width,
+    		height: 	SettingsStore.getGameBoardSize().height,
+    		dashWidth: 	SettingsStore.getDashBoardSize().width,
+    		dashHeight: SettingsStore.getDashBoardSize().height,	 	
 		}
     }
 
@@ -18,23 +22,33 @@ class LandscapeStore extends BaseStore {
     	SettingsStore.addChangeListener(this._updateSize);
     }
 
+    // Need Store Unmount I think!
+
     _updateSize(){
     	this.setState({
-			width: 		SettingsStore.getBoardSize().width,
-    		height: 	SettingsStore.getBoardSize().height
+			width: 		SettingsStore.getGameBoardSize().width,
+    		height: 	SettingsStore.getGameBoardSize().height,
+    		dashWidth: 	SettingsStore.getDashBoardSize().width,
+    		dashHeight: SettingsStore.getDashBoardSize().height,
 		});
     }
 
-    // Need Store Unmount I think!
-
     _constructSides(){
     	var sidesArray = [];
-    	for (var i=2; i<this.state.width; i++){
-    		sidesArray.push({X:i, Y:this.state.height, color:'gray'});
+    	for (var x=2; x<this.state.width+this.state.dashWidth+1; x++){ // Draw Horizontal
+    		sidesArray.push({X:x, Y:1, color:'gray'});
+    		sidesArray.push({X:x, Y:this.state.height, color:'gray'});
     	}
-    	for (var i=1; i<=this.state.height; i++){
-    		sidesArray.push({X:1, Y:i, color:'gray'});
-    		sidesArray.push({X:this.state.width, Y:i, color:'gray'});
+    	for (var y=1; y<=this.state.height; y++){					// Draw Vertical
+    		sidesArray.push({X:1, Y:y, color:'gray'});
+    		sidesArray.push({X:this.state.width, Y:y, color:'gray'});
+    		sidesArray.push({X:this.state.width+1, Y:y, color:'gray'});
+    		sidesArray.push({X:this.state.width+this.state.dashWidth, Y:y, color:'gray'});
+    	}
+    	for (var y=1; y<=6; y++){
+    		for (var x=1; x<=this.state.dashWidth; x++){
+    			sidesArray.push({X:this.state.width+x, Y:y, color:'gray'});
+    		}
     	}
     	this.setState({
     		blocks: sidesArray
@@ -63,10 +77,14 @@ class LandscapeStore extends BaseStore {
 
 	_checkRows(){
 		var newblocks = this.state.blocks;
-		for (var r=this.state.height-1; r>=0; r--){
-			if(this._rowFull(newblocks, r)){						// If row at current index is full
+		for (var r=this.state.height-1; r>1; r--){
+			if(this._rowFull(newblocks, r)){
+				console.log(r);						// If row at current index is full
 				newblocks = this._removeRow(newblocks, r);	// Remove that row from array
 				newblocks = this._dropRows(newblocks, r);	// Drop all rows above
+				dispatcher.dispatch({
+					type: "Row Cleared",
+				});
 				r++;
 			}
 		}
@@ -75,26 +93,31 @@ class LandscapeStore extends BaseStore {
 
 	_rowFull(array, row){
 		return	_.filter(array, function(b){
-					return b.Y == row;
-				}).length >= this.state.width;
+					return (b.Y == row) && this._onBoard(b);
+				}.bind(this)).length == this.state.width-2;
 	}
 
 	_removeRow(array, row){
 		return 	_.reject(array, function(b){
-					return ((b.Y == row) && (b.X != 1) && (b.X != this.state.width));
+					return ((b.Y == row) && this._onBoard(b));
 				}.bind(this));
 	}
 
 	_dropRows(array, row){
 		return _.forEach(array, function(b){
-					if ((b.Y<row) && (b.X != 1) && (b.X != this.state.width)){
+					if ((b.Y < row) && this._onBoard(b)){
 						b.Y += 1;
 					}
 				}.bind(this));
 	}
 
+	_onBoard(block){
+		return 	(block.X > 1) && (block.X < this.state.width) && 
+				(block.Y > 1) && (block.Y < this.state.height);
+	}
+
 	getStartpoint(){
-		return {X: Math.ceil(this.state.width/2), Y:1}
+		return {X: Math.ceil((this.state.width+1)/2), Y:3}
 	}
 
 	getBlocks(){

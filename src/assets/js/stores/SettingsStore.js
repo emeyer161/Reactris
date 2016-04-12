@@ -5,10 +5,18 @@ class SettingsStore extends BaseStore {
 
 	getInitialState(){
     	return {
-			boardWidth: 	'0px',
-            boardHeight:	'0px',
-            blocksWide: 	0,
-            blocksTall: 	0,
+    		gameBoard:{
+    			width: 		'0px',
+    			height: 	'0px',
+    			blocksWide: 0,
+            	blocksTall: 0,
+    		},
+    		dashBoard:{
+    			width: 		'0px',
+    			height: 	'0px',
+    			blocksWide: 0,
+            	blocksTall: 0,
+    		},
             blockSize: 		0,
 		}
     }
@@ -16,11 +24,15 @@ class SettingsStore extends BaseStore {
     register(action){
 		switch(action.type){
 			case "Settings Submitted":
-				action.settings.blocksWide 	+=2;
-				action.settings.blockSize 	= action.settings.boardWidth / action.settings.blocksWide;
-				action.settings.blocksTall 	= Math.floor( action.settings.boardHeight / action.settings.blockSize );
+				action.settings.gameBoard.blocksWide 	+=2;
+				action.settings.blockSize 				= action.settings.gameBoard.width / action.settings.gameBoard.blocksWide;
+				action.settings.gameBoard.blocksTall 	= Math.floor( action.settings.gameBoard.height / action.settings.blockSize );
+
+				action.settings.dashBoard.blocksWide 	= Math.floor(action.settings.dashBoard.width / action.settings.blockSize);
+				action.settings.dashBoard.blocksTall 	= action.settings.gameBoard.blocksTall;
 
 				this.setState( action.settings );
+				console.log(action.settings);
 				break;
 			default:
 				break;
@@ -31,10 +43,17 @@ class SettingsStore extends BaseStore {
 		return this.state.blockSize;
 	}
 
-	getBoardSize(){
+	getGameBoardSize(){
 		return {
-			width: this.state.blocksWide,
-			height: this.state.blocksTall
+			width: this.state.gameBoard.blocksWide,
+			height: this.state.gameBoard.blocksTall
+		}
+	}
+
+	getDashBoardSize(){
+		return {
+			width: this.state.dashBoard.blocksWide,
+			height: this.state.dashBoard.blocksTall
 		}
 	}
 

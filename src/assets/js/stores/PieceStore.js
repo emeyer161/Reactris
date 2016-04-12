@@ -1,12 +1,13 @@
 import BaseStore from './BaseStore';
 import LandscapeStore from './LandscapeStore';
 import GhostStore from './GhostStore';
+import NextPieceStore from './NextPieceStore';
 import dispatcher from '../dispatcher';
 
 import { stopTicker } from '../actions/driverActions';
 
 import { modifyBlock, modifyBlocks, lockBlocks } from '../repository';
-import { getBlocks, getPieceCount } from '../Pieces';
+import { getBlocks } from '../Pieces';
 
 class PieceStore extends BaseStore {
 
@@ -20,6 +21,7 @@ class PieceStore extends BaseStore {
 			orientation: 	null,
 			location: 		{},
 			blocks: 		[],
+			nextBlocks: 	[],
 			live: 			false
 		}
 	}
@@ -27,13 +29,11 @@ class PieceStore extends BaseStore {
 	register(action){
 		switch(action.type){
 			case "New Game":
-				this._newPiece();
-				break;
+			case "Piece Landed":
+				this._playPiece();
 			case "Timer Ticked":
 				this.state.live && this._movePiece('down');
 				break;
-			case "Piece Landed":
-				this._newPiece();
 				break;
 			case "User Input":
 				this.state.live && this._movePiece(action.movement);
@@ -50,27 +50,25 @@ class PieceStore extends BaseStore {
 		}
 	}
 
-	_newPiece(){
-		var type 	= Math.ceil(Math.random()*getPieceCount());
+	_playPiece(){
 		var start 	= LandscapeStore.getStartpoint()
 
 		this.setState({
-			type: 			type,
+			type: 			NextPieceStore.getPieceType(),
 			orientation: 	1,
 			location: 		start,
-			blocks: modifyBlocks( getBlocks(type, 1), start ),
+			blocks: 		modifyBlocks( NextPieceStore.getNextPiece(), start ),
 			live: 			true
 		});
 
-		if(!LandscapeStore.isSpaceEmpty(this.state.blocks)){
-			dispatcher.dispatch({
-				type: "Game Over"
-			});
-		} else {
-			dispatcher.dispatch({
-				type: "New Piece"
-			});
-		}
+		dispatcher.dispatch({
+			type: "Piece Played"
+		});
+
+		!LandscapeStore.isSpaceEmpty(this.state.blocks) &&
+		dispatcher.dispatch({
+			type: "Game Over"
+		});
 	}
 
 	_movePiece(direction){
@@ -83,18 +81,17 @@ class PieceStore extends BaseStore {
 				modBlocks = modifyBlocks( getBlocks(this.state.type, this.state.orientation+1),  this.state.location );
 				modOrientation = this.state.orientation+1;
 				break;
-			case 'lock':
-				this.setState({
-					blocks: lockBlocks(this.state.blocks)
-				});
-				dispatcher.dispatch({
-					type: "Piece Landed",
-					blocks: this.state.blocks
-				});
-				return;
+			case 'left':
+				modBlocks = modifyBlocks( this.state.blocks, {X:-1} );
+				modLocation = modifyBlock(this.state.location, {X:-1});
+				break;
+			case 'right':
+				modBlocks = modifyBlocks( this.state.blocks, {X:1} );
+				modLocation = modifyBlock(this.state.location, {X:1});
+				break;
 			case 'down':
 				modBlocks = modifyBlocks( this.state.blocks, {Y:1} );
-				modLocation = modifyBlocks([this.state.location], {Y:1})[0];
+				modLocation = modifyBlock(this.state.location, {Y:1});
 
 				if(!LandscapeStore.isSpaceEmpty(modBlocks)){
 					dispatcher.dispatch({
@@ -104,14 +101,15 @@ class PieceStore extends BaseStore {
 					return;
 				}
 				break;
-			case 'left':
-				modBlocks = modifyBlocks( this.state.blocks, {X:-1} );
-				modLocation = modifyBlocks([this.state.location], {X:-1})[0];
-				break;
-			case 'right':
-				modBlocks = modifyBlocks( this.state.blocks, {X:1} );
-				modLocation = modifyBlocks([this.state.location], {X:1})[0];
-				break;
+			case 'lock':
+				this.setState({
+					blocks: lockBlocks(this.state.blocks)
+				});
+				dispatcher.dispatch({
+					type: "Piece Landed",
+					blocks: this.state.blocks
+				});
+				return;
 			default:
 				console.log('Not a movement');
 				return;
@@ -131,10 +129,6 @@ class PieceStore extends BaseStore {
 
 	getBlocks(){
 		return this.state.blocks;
-	}
-
-	getPieceColor(){
-		return this.state.color;
 	}
 
 	getPieceType(){
