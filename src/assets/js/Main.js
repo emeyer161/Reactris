@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// import _ from "lodash";
-
 import { newGame, keyPressed } from './actions/userActions';
 import { submitSettings, setTicker, quickerTicker, slowTicker } from './actions/driverActions';
 
@@ -17,22 +15,24 @@ export default class Application extends React.Component {
     constructor(){
         super();
 
+        this.state = {
+            position:'relative',
+            width:'100%',
+            height:'100%',
+            margin:'auto',
+            backgroundColor:'AliceBlue'
+        }
+
         this.styles = {
-            container:{
-                position:'relative',
-                width:'100%',
-                height:'100%',
-                backgroundColor:'AliceBlue'
-            },
-            gameboard:{
+            gameBoard:{
                 position:'absolute',
-                width:'60%',
+                width:11/17*100+'%',
                 height:'100%',
             },
             dashBoard:{
                 position:'absolute',
                 right:'0px',
-                width:'40%',
+                width:6/17*100+'%',
                 height:'100%',
             },
             onDeck:{
@@ -40,18 +40,18 @@ export default class Application extends React.Component {
                 top:'0px',
                 right:'0',
                 width:'100%',
-                height:'50%',
+                height:8/22*100+'%',
             },
             scoreBoard:{
                 position:'absolute',
                 bottom:'0px',
                 width:'100%',
-                height:'50%',
+                height:14/22*100+'%',
                 textAlign:'center'
             }
         }
 
-        this._update = this._update.bind(this);
+        this._updateContainerSizes = this._updateContainerSizes.bind(this);
     }
 
     _handleKeyPress(event){
@@ -65,33 +65,36 @@ export default class Application extends React.Component {
     }
 
     componentDidMount() {
-        window.addEventListener("keydown", this._handleKeyPress.bind(this), false);
         setTicker(1);
 
-        submitSettings({
-            gameBoard:{
-                width:  document.getElementById('gameBoard').clientWidth,
-                height: document.getElementById('gameBoard').clientHeight,
-                blocksWide:10
-            },
-            dashBoard:{
-                width:  document.getElementById('dashBoard').clientWidth,
-                height: document.getElementById('dashBoard').clientHeight,
-            }
-        });
+        SettingsStore.addChangeListener(this._updateContainerSizes);
+        this._submitContainerSizes();
+        window.addEventListener("resize", function(){
+            this._submitContainerSizes();
+        }.bind(this), true);
+
+        window.addEventListener("keydown", this._handleKeyPress.bind(this), false);
     }
 
     componentWillUnmount() {
         window.removeEventListener("keydown", this._handleKeyPress.bind(this), false);
+        SettingsStore.removeChangeListener(this._updateContainerSizes);
     }
 
-    _update(){
+    _submitContainerSizes(){
+        submitSettings({
+            width:  document.getElementById('Reactris').parentNode.clientWidth,
+            height: document.getElementById('Reactris').parentNode.clientHeight
+        });
+    }
 
+    _updateContainerSizes(){
+        this.setState(SettingsStore.getContainerSize());
     }
 
   	render(){
-	    return  <div id='Reactris' style={this.styles.container} >
-                    <div id='gameBoard' style={this.styles.gameboard} >
+	    return  <div id='Reactris' style={this.state} >
+                    <div id='gameBoard' style={this.styles.gameBoard} >
                         <Landscape />
                         <Piece />
                         <Ghost />

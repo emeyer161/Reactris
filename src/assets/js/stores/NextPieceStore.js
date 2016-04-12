@@ -1,33 +1,22 @@
 import BaseStore from './BaseStore';
 import dispatcher from '../dispatcher';
 
-import SettingsStore from './SettingsStore';
-
 import { getBlocks, getPieceCount } from '../Pieces';
 import { modifyBlocks } from '../repository';
 
 class NextPieceStore extends BaseStore {
 
 	getInitialState(){
-    	return this._newPiece();
+    	return {
+			type: 		null,
+			blocks: 	[],
+			rawBlocks: 	[],
+		};
     }
-
-	_newPiece(){
-		var type 		= Math.ceil(Math.random()*getPieceCount());
-		var rawBlocks 	= getBlocks( type, 1 );
-		var blocks 		= modifyBlocks(rawBlocks, {
-			X: Math.ceil(SettingsStore.getDashBoardSize().width/2)+1,
-			Y: 3
-		})
-		return {
-			type: 		type,
-			blocks: 	blocks,
-			rawBlocks: 	rawBlocks,
-		}
-	}
 
 	register(action){
 		switch(action.type){
+			case "New Game":
 			case "Piece Played":
 				this.setState(this._newPiece());
 				break;
@@ -36,9 +25,21 @@ class NextPieceStore extends BaseStore {
 		}
 	}
 
-	getNextPiece(){
-		return this.state.rawBlocks;
+	_newPiece(){
+		var type 		= Math.ceil(Math.random()*getPieceCount());
+		var rawBlocks 	= getBlocks( type, 1 );
+		var blocks 		= modifyBlocks(rawBlocks, {X: 4, Y: 4});
+
+		return {
+			type: 		type,
+			blocks: 	blocks,
+			rawBlocks: 	rawBlocks,
+		}
 	}
+
+	// getNextPiece(){
+	// 	return this.state.rawBlocks;
+	// }
 
 	getBlocks(){
 		return this.state.blocks;

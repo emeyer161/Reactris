@@ -4,19 +4,13 @@ import GhostStore from './GhostStore';
 import NextPieceStore from './NextPieceStore';
 import dispatcher from '../dispatcher';
 
-import { stopTicker } from '../actions/driverActions';
-
 import { modifyBlock, modifyBlocks, lockBlocks } from '../repository';
-import { getBlocks } from '../Pieces';
+import { getBlocks, getPieceCount } from '../Pieces';
 
 class PieceStore extends BaseStore {
 
 	getInitialState(){
-    	return this._emptyState();
-    }
-
-	_emptyState(){
-		return {
+    	return {
 			type: 			null,
 			orientation: 	null,
 			location: 		{},
@@ -24,16 +18,16 @@ class PieceStore extends BaseStore {
 			nextBlocks: 	[],
 			live: 			false
 		}
-	}
+    }
 
 	register(action){
 		switch(action.type){
 			case "New Game":
+				this._setPiece(Math.ceil(Math.random()*getPieceCount()));
 			case "Piece Landed":
 				this._playPiece();
 			case "Timer Ticked":
 				this.state.live && this._movePiece('down');
-				break;
 				break;
 			case "User Input":
 				this.state.live && this._movePiece(action.movement);
@@ -42,24 +36,24 @@ class PieceStore extends BaseStore {
 				this.setState({
 					live: false
 				});
-				// stopTicker();
-				// this.setState( this._emptyState() );
 				break;
 			default:
 				break;
 		}
 	}
 
-	_playPiece(){
-		var start 	= LandscapeStore.getStartpoint()
-
+	_setPiece(type){
 		this.setState({
-			type: 			NextPieceStore.getPieceType(),
+			type: 			type,
 			orientation: 	1,
-			location: 		start,
-			blocks: 		modifyBlocks( NextPieceStore.getNextPiece(), start ),
+			location: 		{X: 7, Y:3},
+			blocks: 		modifyBlocks( getBlocks(type, 1), {X: 7, Y:3} ),
 			live: 			true
 		});
+	}
+
+	_playPiece(){
+		this._setPiece(NextPieceStore.getPieceType());
 
 		dispatcher.dispatch({
 			type: "Piece Played"
