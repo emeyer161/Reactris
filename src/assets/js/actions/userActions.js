@@ -19,6 +19,13 @@ export function newGame(){
 	});
 }
 
+export function movement(direction){
+	dispatcher.dispatch({
+		type: "User Input",
+		movement: direction
+	});
+}
+
 function _decodeKeyPress(keyCode){
 	switch(keyCode){
 		case 13:

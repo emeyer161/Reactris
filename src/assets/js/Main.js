@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { submitSettings, newGame, keyPressed } from './actions/userActions';
+import { submitSettings, newGame, movement, keyPressed } from './actions/userActions';
 
 import Piece from './containers/Piece';
 import Ghost from './containers/Ghost';
@@ -18,6 +18,7 @@ export default class Application extends React.Component {
         this.state ={
             position: 'relative',
             margin:'auto',
+            touchEnabled: (('ontouchstart' in window) || (navigator.MaxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0))
         }
 
         this.styles = {
@@ -94,10 +95,40 @@ export default class Application extends React.Component {
         }.bind(this), true);
 
         window.addEventListener("keydown", this._handleKeyPress.bind(this), false);
+        this.state.touchEnabled && this.initiateTouchHandlers();
     }
 
     componentWillUnmount() {
         window.removeEventListener("keydown", this._handleKeyPress.bind(this), false);
+    }
+
+    initiateTouchHandlers(){
+        this.touchsurface = document.getElementById('Reactris'),
+        this.startX, this.startY, this.distX,
+        this.threshold = 100, //required min distance traveled to be considered swipe
+        this.startTime,
+        this.allowedTime = 600, // maximum time allowed to travel that distance
+        this._handleSwipe = function(direction){
+            movement(direction);
+        }
+
+        this.touchsurface.addEventListener('touchstart', function(e){
+            this.startObj = e.changedTouches[0];
+            this.startX = this.startObj.pageX;
+            this.startY = this.startObj.pageY;
+            this.startTime = new Date().getTime(); // record time when finger first makes contact with surface
+        }.bind(this), false)
+     
+        this.touchsurface.addEventListener('touchend', function(e){
+            this.endObj = e.changedTouches[0];
+            if ((new Date().getTime() - this.startTime <= this.allowedTime) &&  // check that elapsed time is within allowed
+                (Math.abs(this.endObj.pageX - this.startX) >= this.threshold) &&    // check that swipe distance was long enough
+                (Math.abs(this.endObj.pageY - this.startY) <= 50)) {     // check that Y distance was minimal
+                    this.endObj.pageX - this.startX > 0       // calculate swipe direction
+                        ? this._handleSwipe('right')
+                        : this._handleSwipe('left')
+            }
+        }.bind(this), false)
     }
 
     _resize(){
