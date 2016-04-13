@@ -28,7 +28,7 @@ class NextPieceStore extends BaseStore {
 	_newPiece(){
 		var type 		= Math.ceil(Math.random()*getPieceCount());
 		var rawBlocks 	= getBlocks( type, 1 );
-		var blocks 		= modifyBlocks(rawBlocks, {X: 4, Y: 4});
+		var blocks 		= modifyBlocks(rawBlocks, {X: 2, Y: 2.5});
 
 		return {
 			type: 		type,

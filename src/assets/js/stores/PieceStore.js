@@ -11,6 +11,7 @@ class PieceStore extends BaseStore {
 
 	getInitialState(){
     	return {
+    		age: 			0,
 			type: 			null,
 			orientation: 	null,
 			location: 		{},
@@ -27,6 +28,9 @@ class PieceStore extends BaseStore {
 			case "Piece Landed":
 				this._playPiece();
 			case "Timer Ticked":
+				this.setState({
+					age: this.state.age+1
+				});
 				this.state.live && this._movePiece('down');
 				break;
 			case "User Input":
@@ -44,10 +48,11 @@ class PieceStore extends BaseStore {
 
 	_setPiece(type){
 		this.setState({
+			age: 			0,
 			type: 			type,
 			orientation: 	1,
-			location: 		{X: 7, Y:3},
-			blocks: 		modifyBlocks( getBlocks(type, 1), {X: 7, Y:3} ),
+			location: 		{X: 5, Y:2},
+			blocks: 		modifyBlocks( getBlocks(type, 1), {X: 5, Y:2} ),
 			live: 			true
 		});
 	}
@@ -90,7 +95,8 @@ class PieceStore extends BaseStore {
 				if(!LandscapeStore.isSpaceEmpty(modBlocks)){
 					dispatcher.dispatch({
 						type: "Piece Landed",
-						blocks: this.state.blocks
+						blocks: this.state.blocks,
+						age: this.state.age,
 					});
 					return;
 				}
@@ -101,7 +107,8 @@ class PieceStore extends BaseStore {
 				});
 				dispatcher.dispatch({
 					type: "Piece Landed",
-					blocks: this.state.blocks
+					blocks: this.state.blocks,
+					age: this.state.age,
 				});
 				return;
 			default:

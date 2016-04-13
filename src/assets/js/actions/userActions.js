@@ -13,6 +13,12 @@ export function keyPressed(keyCode){
     }
 }
 
+export function newGame(){
+	dispatcher.dispatch({
+		type: "New Game"
+	});
+}
+
 function _decodeKeyPress(keyCode){
 	switch(keyCode){
 		case 13:
@@ -29,4 +35,11 @@ function _decodeKeyPress(keyCode){
 			console.log('Not a functional key');
 			return "other";
 	}
+}
+
+export function submitSettings(settings){
+	dispatcher.dispatch({
+		type: "Settings Submitted",
+		settings: settings
+	});
 }
