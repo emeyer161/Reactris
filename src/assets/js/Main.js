@@ -131,9 +131,9 @@ export default class Application extends React.Component {
                             : this._handleSwipe('left')
                 } else if ((Math.abs(this.endObj.pageY - this.startY) >= this.threshold) &&    // check that swipe distance was long enough
                     (Math.abs(this.endObj.pageX - this.startX) <= 50)) {
-                        this.endObj.pageY - this.startY > 0       // calculate swipe direction
+                        this.startY - this.endObj.pageY > 0       // calculate swipe direction
                             ? this._handleSwipe('rotate')
-                            : this.startY - this.endObj.pageY > this.threshold*2
+                            : this.endObj.pageY - this.startY > this.threshold*2
                                 ? this._handleSwipe('lock')
                                 : this._handleSwipe('down')
                 }
