@@ -103,7 +103,7 @@ export default class Application extends React.Component {
     }
 
     initiateTouchHandlers(){
-        this.touchsurface = document.getElementById('Reactris'),
+        this.touchsurface = document.getElementById('gameBoard'),
         this.startX, this.startY, this.distX,
         this.threshold = 100, //required min distance traveled to be considered swipe
         this.startTime,
@@ -113,6 +113,7 @@ export default class Application extends React.Component {
         }
 
         this.touchsurface.addEventListener('touchstart', function(e){
+            e.preventDefault();
             this.startObj = e.changedTouches[0];
             this.startX = this.startObj.pageX;
             this.startY = this.startObj.pageY;
@@ -120,13 +121,22 @@ export default class Application extends React.Component {
         }.bind(this), false)
      
         this.touchsurface.addEventListener('touchend', function(e){
+            e.preventDefault();
             this.endObj = e.changedTouches[0];
-            if ((new Date().getTime() - this.startTime <= this.allowedTime) &&  // check that elapsed time is within allowed
-                (Math.abs(this.endObj.pageX - this.startX) >= this.threshold) &&    // check that swipe distance was long enough
-                (Math.abs(this.endObj.pageY - this.startY) <= 50)) {     // check that Y distance was minimal
-                    this.endObj.pageX - this.startX > 0       // calculate swipe direction
-                        ? this._handleSwipe('right')
-                        : this._handleSwipe('left')
+            if (new Date().getTime() - this.startTime <= this.allowedTime){  // check that elapsed time is within allowed
+                if((Math.abs(this.endObj.pageX - this.startX) >= this.threshold) &&    // check that swipe distance was long enough
+                    (Math.abs(this.endObj.pageY - this.startY) <= 50)) {
+                        this.endObj.pageX - this.startX > 0       // calculate swipe direction
+                            ? this._handleSwipe('right')
+                            : this._handleSwipe('left')
+                } else if ((Math.abs(this.endObj.pageY - this.startY) >= this.threshold) &&    // check that swipe distance was long enough
+                    (Math.abs(this.endObj.pageX - this.startX) <= 50)) {
+                        this.endObj.pageY - this.startY > 0       // calculate swipe direction
+                            ? this._handleSwipe('rotate')
+                            : this.startY - this.endObj.pageY > this.threshold*2
+                                ? this._handleSwipe('lock')
+                                : this._handleSwipe('down')
+                }
             }
         }.bind(this), false)
     }
