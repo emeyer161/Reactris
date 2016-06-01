@@ -104,7 +104,7 @@ export default class Application extends React.Component {
     }
 
     initiateTouchHandlers(){
-        this.touchsurface = document,
+        this.touchsurface = document.getElementById('innerContainer'),
         this.startX, this.startY, this.distX,
         this.threshold = 25, //required min distance traveled to be considered swipe
         this.startTime,
