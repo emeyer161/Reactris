@@ -104,7 +104,7 @@ export default class Application extends React.Component {
     }
 
     initiateTouchHandlers(){
-        this.touchsurface = document.getElementById('innerContainer'),
+        this.touchsurface = document,
         this.startX, this.startY, this.distX,
         this.threshold = 25, //required min distance traveled to be considered swipe
         this.startTime,
@@ -114,6 +114,7 @@ export default class Application extends React.Component {
         }
 
         this.touchsurface.addEventListener('touchstart', function(e){
+            if(e.target.id == "newGame") return;
             e.preventDefault();
             this.startObj = e.changedTouches[0];
             this.startX = this.startObj.pageX;
@@ -122,6 +123,7 @@ export default class Application extends React.Component {
         }.bind(this), false)
      
         this.touchsurface.addEventListener('touchend', function(e){
+            if(e.target.id == "newGame") return;
             e.preventDefault();
             this.endObj = e.changedTouches[0];
             if (new Date().getTime() - this.startTime <= this.allowedTime){  // check that elapsed time is within allowed
