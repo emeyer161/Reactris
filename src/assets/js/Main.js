@@ -106,7 +106,7 @@ export default class Application extends React.Component {
     initiateTouchHandlers(){
         this.touchsurface = document.getElementById('gameBoard'),
         this.startX, this.startY, this.distX,
-        this.threshold = 50, //required min distance traveled to be considered swipe
+        this.threshold = 25, //required min distance traveled to be considered swipe
         this.startTime,
         this.allowedTime = 400, // maximum time allowed to travel that distance
         this._handleSwipe = function(direction){
