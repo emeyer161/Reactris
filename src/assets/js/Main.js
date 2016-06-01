@@ -79,7 +79,8 @@ export default class Application extends React.Component {
                 border: '0px',
                 borderRadius:'7px',
                 backgroundColor:'white',
-                color:'black'
+                color:'black',
+                fontSize:'2vh'
             }
         }
     }
@@ -105,9 +106,9 @@ export default class Application extends React.Component {
     initiateTouchHandlers(){
         this.touchsurface = document.getElementById('gameBoard'),
         this.startX, this.startY, this.distX,
-        this.threshold = 100, //required min distance traveled to be considered swipe
+        this.threshold = 50, //required min distance traveled to be considered swipe
         this.startTime,
-        this.allowedTime = 600, // maximum time allowed to travel that distance
+        this.allowedTime = 400, // maximum time allowed to travel that distance
         this._handleSwipe = function(direction){
             movement(direction);
         }
@@ -124,13 +125,15 @@ export default class Application extends React.Component {
             e.preventDefault();
             this.endObj = e.changedTouches[0];
             if (new Date().getTime() - this.startTime <= this.allowedTime){  // check that elapsed time is within allowed
-                if((Math.abs(this.endObj.pageX - this.startX) >= this.threshold) &&    // check that swipe distance was long enough
-                    (Math.abs(this.endObj.pageY - this.startY) <= 50)) {
+                this.horizontal = Math.abs(this.endObj.pageX - this.startX);
+                this.vertical   = Math.abs(this.endObj.pageY - this.startY);
+                if(this.horizontal >= this.threshold &&    // check that swipe distance was long enough
+                    this.horizontal / this.vertical >= 1.5) {
                         this.endObj.pageX - this.startX > 0       // calculate swipe direction
                             ? this._handleSwipe('right')
                             : this._handleSwipe('left')
-                } else if ((Math.abs(this.endObj.pageY - this.startY) >= this.threshold) &&    // check that swipe distance was long enough
-                    (Math.abs(this.endObj.pageX - this.startX) <= 50)) {
+                } else if (this.vertical >= this.threshold &&    // check that swipe distance was long enough
+                    this.vertical / this.horizontal >= 1.5) {
                         this.startY - this.endObj.pageY > 0       // calculate swipe direction
                             ? this._handleSwipe('rotate')
                             : this.endObj.pageY - this.startY > this.threshold*2
@@ -167,6 +170,8 @@ export default class Application extends React.Component {
 
     _handleButton(){
         newGame();
+        document.getElementById("newGame").blur();
+        document.getElementById("gameBoard").focus();
     }
 
   	render(){
@@ -186,7 +191,7 @@ export default class Application extends React.Component {
                                     <ScoreBoard />
                                 </div>
                                 <div style={this.styles.newGame}>
-                                    <button onClick={this._handleButton} style={this.styles.button}>New Game</button>
+                                    <button id="newGame" onClick={this._handleButton} style={this.styles.button}>New Game</button>
                                 </div>
                             </div>
                         </div>
